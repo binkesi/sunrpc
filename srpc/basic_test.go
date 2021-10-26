@@ -15,16 +15,18 @@ func TestRpc(t *testing.T) {
 }
 
 func TestDouble(t *testing.T) {
-	rpc.RegisterName("Server", new(Server))
+	RegisterService(&Server{})
 	listener, err := net.Listen("tcp", ":1234")
 	if err != nil {
-		log.Fatal("Listen tcp err:", err)
+		log.Fatal("Net listen error:", err)
 	}
-	conn, err := listener.Accept()
-	if err != nil {
-		log.Fatal("Connection error:", err)
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Fatal("Connection error:", err)
+		}
+		go rpc.ServeConn(conn)
 	}
-	rpc.ServeConn(conn)
 }
 
 func TestClient(t *testing.T) {
@@ -33,7 +35,7 @@ func TestClient(t *testing.T) {
 		log.Fatal("RPC dial error:", err)
 	}
 	var reply string
-	err = client.DoubleNum("13", &reply)
+	err = client.DoubleNum("23", &reply)
 	if err != nil {
 		log.Fatal("Service error:", err)
 	}

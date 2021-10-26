@@ -2,8 +2,19 @@ package srpc
 
 import (
 	"log"
+	"net/rpc"
 	"strconv"
 )
+
+const DoubleServiceName = "Server"
+
+type DoubleServiceInterface interface {
+	DoubleNum(request string, reply *string) error
+}
+
+func RegisterService(service DoubleServiceInterface) error {
+	return rpc.RegisterName(DoubleServiceName, service)
+}
 
 type Server struct{}
 

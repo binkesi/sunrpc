@@ -28,14 +28,14 @@ func TestDouble(t *testing.T) {
 }
 
 func TestClient(t *testing.T) {
-	client, err := rpc.Dial("tcp", "localhost:1234")
+	client, err := DialDoubleService("tcp", ":1234")
 	if err != nil {
-		log.Fatal("Dial error:", err)
+		log.Fatal("RPC dial error:", err)
 	}
 	var reply string
-	err = client.Call("Server.DoubleNum", "18", &reply)
+	err = client.DoubleNum("13", &reply)
 	if err != nil {
-		log.Fatal("Server error:", err)
+		log.Fatal("Service error:", err)
 	}
-	fmt.Printf("Double result is: %s\n", reply)
+	fmt.Println(reply)
 }

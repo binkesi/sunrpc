@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/rpc"
+	"net/rpc/jsonrpc"
 	"testing"
 )
 
@@ -25,19 +26,20 @@ func TestDouble(t *testing.T) {
 		if err != nil {
 			log.Fatal("Connection error:", err)
 		}
-		go rpc.ServeConn(conn)
+		go rpc.ServeCodec(jsonrpc.NewServerCodec(conn))
 	}
 }
 
 func TestClient(t *testing.T) {
-	client, err := DialDoubleService("tcp", ":1234")
+	conn, err := net.Dial("tcp", "localhost:1234")
 	if err != nil {
-		log.Fatal("RPC dial error:", err)
+		log.Fatal("TCP dial error:", err)
 	}
+	client := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(conn))
 	var reply string
-	err = client.DoubleNum("23", &reply)
+	err = client.Call(DoubleServiceName+".DoubleNum", "42", &reply)
 	if err != nil {
-		log.Fatal("Service error:", err)
+		log.Fatal("Service call error:", err)
 	}
 	fmt.Println(reply)
 }

@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/rpc"
 	"net/rpc/jsonrpc"
+	"reflect"
 	"testing"
 )
 
@@ -26,7 +27,15 @@ func TestDouble(t *testing.T) {
 		if err != nil {
 			log.Fatal("Connection error:", err)
 		}
-		go rpc.ServeCodec(jsonrpc.NewServerCodec(conn))
+		go func() {
+			ctx := jsonrpc.NewServerCodec(conn)
+			//value := reflect.Indirect(reflect.ValueOf(ctx))
+			vtype := reflect.TypeOf(reflect.ValueOf(ctx).Elem())
+			for i := 0; i < vtype.NumField(); i++ {
+				fmt.Printf("%s: %v\n", vtype.Field(i).Name, vtype.Field(i).Type)
+			}
+			rpc.ServeCodec(ctx)
+		}()
 	}
 }
 
@@ -35,9 +44,14 @@ func TestClient(t *testing.T) {
 	if err != nil {
 		log.Fatal("TCP dial error:", err)
 	}
-	client := rpc.NewClientWithCodec(jsonrpc.NewClientCodec(conn))
+	ctx := jsonrpc.NewClientCodec(conn)
+	client := rpc.NewClientWithCodec(ctx)
 	var reply string
-	err = client.Call(DoubleServiceName+".DoubleNum", "42", &reply)
+	call := client.Go(DoubleServiceName+".DoubleNum", "42", &reply, make(chan *rpc.Call, 10))
+	fmt.Println(reflect.Indirect(reflect.ValueOf(call)))
+	callrslt := <-call.Done
+	err = callrslt.Error
+	//err = client.Call(DoubleServiceName+".DoubleNum", "42", &reply)
 	if err != nil {
 		log.Fatal("Service call error:", err)
 	}

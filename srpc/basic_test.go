@@ -39,7 +39,7 @@ func TestDouble(t *testing.T) {
 	}
 }
 
-func TestClient(t *testing.T) {
+func TestJsonClient(t *testing.T) {
 	conn, err := net.Dial("tcp", "localhost:1234")
 	if err != nil {
 		log.Fatal("TCP dial error:", err)

@@ -48,7 +48,8 @@ func TestJsonClient(t *testing.T) {
 	client := rpc.NewClientWithCodec(ctx)
 	var reply string
 	call := client.Go(DoubleServiceName+".DoubleNum", "42", &reply, make(chan *rpc.Call, 10))
-	fmt.Println(reflect.Indirect(reflect.ValueOf(call)))
+	value := reflect.Indirect(reflect.ValueOf(call))
+	fmt.Println(value)
 	callrslt := <-call.Done
 	err = callrslt.Error
 	//err = client.Call(DoubleServiceName+".DoubleNum", "42", &reply)

@@ -1,7 +1,6 @@
 package kvsvc
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"net/rpc"
@@ -10,40 +9,38 @@ import (
 )
 
 func TestKvService(t *testing.T) {
-	kvstore := NewKvStoreService()
-	rpc.Register(kvstore)
-	listener, err := net.Listen("tcp", ":2424")
+	rpc.RegisterName("KvStoreService", NewKvStoreService())
+	listener, err := net.Listen("tcp", ":1234")
 	if err != nil {
 		log.Fatal("net listen error:", err)
 	}
-	conn, err := listener.Accept()
-	if err != nil {
-		log.Fatal("connection error:", err)
-	}
 	for {
-		go func() {
-			rpc.ServeConn(conn)
-		}()
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Fatal("connection error:", err)
+		}
+		go rpc.ServeConn(conn)
 	}
 }
 
 func TestWatchClient(t *testing.T) {
-	conn, err := net.Dial("tcp", "localhost:2424")
+	client, err := rpc.Dial("tcp", "localhost:1234")
 	if err != nil {
-		log.Fatal("connection error:", err)
+		log.Fatal("rpc dial error:", err)
 	}
-	client := rpc.NewClient(conn)
 	go func() {
 		var keyChanged string
-		err := client.Call("KvStoreService.Watch", 30, &keyChanged)
+		err := client.Call("KvStoreService.Watch", 5, &keyChanged)
 		if err != nil {
 			log.Fatal("call service error:", err)
 		}
-		fmt.Println("watch:", keyChanged)
+		log.Println("watch:", keyChanged)
 	}()
 	err = client.Call("KvStoreService.Set", [2]string{"name", "sungn"}, new(struct{}))
 	if err != nil {
 		log.Fatal("call service error:", err)
+	} else {
+		log.Println("set key")
 	}
-	time.Sleep(3 * time.Second)
+	time.Sleep(10 * time.Second)
 }

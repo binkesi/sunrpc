@@ -51,7 +51,7 @@ func (p *KvStoreService) Watch(timeoutSecond int, keyChanged *string) error {
 	p.mu.Unlock()
 	select {
 	case <-time.After(time.Duration(timeoutSecond) * time.Second):
-		return fmt.Errorf("time out")
+		return fmt.Errorf("timeout")
 	case key := <-ch:
 		*keyChanged = key
 		return nil

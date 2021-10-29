@@ -56,5 +56,4 @@ func (p *KvStoreService) Watch(timeoutSecond int, keyChanged *string) error {
 		*keyChanged = key
 		return nil
 	}
-	return nil
 }

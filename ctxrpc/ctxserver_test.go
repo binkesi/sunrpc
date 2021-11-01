@@ -35,6 +35,10 @@ func TestCtxClient(t *testing.T) {
 	request := "sungn2"
 	var reply string
 	client := rpc.NewClient(conn)
+	err = client.Call("HelloServer.Login", "username:password", &reply)
+	if err != nil {
+		log.Fatal(err)
+	}
 	err = client.Call("HelloServer.Hello", request, &reply)
 	if err != nil {
 		log.Fatal("call service error:", err)

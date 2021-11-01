@@ -34,6 +34,7 @@ func TestClient(t *testing.T) {
 			if err != nil {
 				log.Fatal("connection error:", err)
 			}
+			// pass rpc client to channel.
 			clientChan <- rpc.NewClient(conn)
 		}
 	}()

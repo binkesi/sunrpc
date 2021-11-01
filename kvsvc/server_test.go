@@ -36,6 +36,7 @@ func TestWatchClient(t *testing.T) {
 		}
 		log.Println("watch:", keyChanged)
 	}()
+	time.Sleep(2 * time.Second)
 	err = client.Call("KvStoreService.Set", [2]string{"name", "sungn"}, new(struct{}))
 	if err != nil {
 		log.Fatal("call service error:", err)

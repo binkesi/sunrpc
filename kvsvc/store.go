@@ -2,6 +2,7 @@ package kvsvc
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -40,11 +41,12 @@ func (p *KvStoreService) Set(kv [2]string, reply *struct{}) error {
 		}
 	}
 	p.storeMap[key] = value
+	log.Printf("set %s to %s", key, value)
 	return nil
 }
 
-func (p *KvStoreService) Watch(timeoutSecond int, keyChanged *string) error {
-	id := fmt.Sprintf("watch-%s-%03d", time.Now(), rand.Int())
+func (p *KvStoreService) Watch(timeoutSecond int, keyChange *string) error {
+	id := fmt.Sprintf("watch-%s%03d", time.Now(), rand.Int())
 	ch := make(chan string, 10)
 	p.mu.Lock()
 	p.filter[id] = func(key string) { ch <- key }
@@ -53,7 +55,7 @@ func (p *KvStoreService) Watch(timeoutSecond int, keyChanged *string) error {
 	case <-time.After(time.Duration(timeoutSecond) * time.Second):
 		return fmt.Errorf("timeout")
 	case key := <-ch:
-		*keyChanged = key
+		*keyChange = key
 		return nil
 	}
 }

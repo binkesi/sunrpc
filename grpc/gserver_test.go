@@ -10,13 +10,18 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func TestGrpcServer(t *testing.T) {
-	grpcServer := grpc.NewServer()
+	creds, err := credentials.NewServerTLSFromFile("./tlskeys/server.crt", "./tlskeys/server.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
 	RegisterPubsubServiceServer(grpcServer, NewPubsubService())
-	listener, err := net.Listen("tcp", ":1234")
+	listener, err := net.Listen("tcp", ":5000")
 	if err != nil {
 		log.Fatal("net listen error:", err)
 	}
@@ -24,7 +29,11 @@ func TestGrpcServer(t *testing.T) {
 }
 
 func TestGrpcClient(t *testing.T) {
-	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	creds, err := credentials.NewClientTLSFromFile("./tlskeys/server.crt", "server.grpc.io")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conn, err := grpc.Dial("localhost:5000", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatal("grpc dial error:", err)
 	}
@@ -59,7 +68,11 @@ func TestGrpcClient(t *testing.T) {
 }
 
 func TestPublishClient(t *testing.T) {
-	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	creds, err := credentials.NewClientTLSFromFile("./tlskeys/server.crt", "server.grpc.io")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conn, err := grpc.Dial("localhost:5000", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatal("dial error:", err)
 	}
@@ -76,7 +89,11 @@ func TestPublishClient(t *testing.T) {
 }
 
 func TestSubscribeClient(t *testing.T) {
-	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	creds, err := credentials.NewClientTLSFromFile("./tlskeys/server.crt", "server.grpc.io")
+	if err != nil {
+		log.Fatal(err)
+	}
+	conn, err := grpc.Dial("localhost:5000", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatal("dial error:", err)
 	}

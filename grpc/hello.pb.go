@@ -81,8 +81,13 @@ var file_hello_proto_rawDesc = []byte{
 	0x05, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x12, 0x07, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x1a,
 	0x07, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x12, 0x1f, 0x0a, 0x07, 0x43, 0x68, 0x61, 0x6e,
 	0x6e, 0x65, 0x6c, 0x12, 0x07, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x1a, 0x07, 0x2e, 0x53,
-	0x74, 0x72, 0x69, 0x6e, 0x67, 0x28, 0x01, 0x30, 0x01, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x3b,
-	0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x72, 0x69, 0x6e, 0x67, 0x28, 0x01, 0x30, 0x01, 0x32, 0x4d, 0x0a, 0x0d, 0x50, 0x75, 0x62,
+	0x73, 0x75, 0x62, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x1b, 0x0a, 0x07, 0x50, 0x75,
+	0x62, 0x6c, 0x69, 0x73, 0x68, 0x12, 0x07, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x1a, 0x07,
+	0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x12, 0x1f, 0x0a, 0x09, 0x53, 0x75, 0x62, 0x73, 0x63,
+	0x72, 0x69, 0x62, 0x65, 0x12, 0x07, 0x2e, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x1a, 0x07, 0x2e,
+	0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x30, 0x01, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x3b, 0x67,
+	0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -104,10 +109,14 @@ var file_hello_proto_goTypes = []interface{}{
 var file_hello_proto_depIdxs = []int32{
 	0, // 0: HelloService.Hello:input_type -> String
 	0, // 1: HelloService.Channel:input_type -> String
-	0, // 2: HelloService.Hello:output_type -> String
-	0, // 3: HelloService.Channel:output_type -> String
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	0, // 2: PubsubService.Publish:input_type -> String
+	0, // 3: PubsubService.Subscribe:input_type -> String
+	0, // 4: HelloService.Hello:output_type -> String
+	0, // 5: HelloService.Channel:output_type -> String
+	0, // 6: PubsubService.Publish:output_type -> String
+	0, // 7: PubsubService.Subscribe:output_type -> String
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -140,7 +149,7 @@ func file_hello_proto_init() {
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   2,
 		},
 		GoTypes:           file_hello_proto_goTypes,
 		DependencyIndexes: file_hello_proto_depIdxs,
@@ -296,6 +305,142 @@ var _HelloService_serviceDesc = grpc.ServiceDesc{
 			Handler:       _HelloService_Channel_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
+		},
+	},
+	Metadata: "hello.proto",
+}
+
+// PubsubServiceClient is the client API for PubsubService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type PubsubServiceClient interface {
+	Publish(ctx context.Context, in *String, opts ...grpc.CallOption) (*String, error)
+	Subscribe(ctx context.Context, in *String, opts ...grpc.CallOption) (PubsubService_SubscribeClient, error)
+}
+
+type pubsubServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPubsubServiceClient(cc grpc.ClientConnInterface) PubsubServiceClient {
+	return &pubsubServiceClient{cc}
+}
+
+func (c *pubsubServiceClient) Publish(ctx context.Context, in *String, opts ...grpc.CallOption) (*String, error) {
+	out := new(String)
+	err := c.cc.Invoke(ctx, "/PubsubService/Publish", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pubsubServiceClient) Subscribe(ctx context.Context, in *String, opts ...grpc.CallOption) (PubsubService_SubscribeClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_PubsubService_serviceDesc.Streams[0], "/PubsubService/Subscribe", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &pubsubServiceSubscribeClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PubsubService_SubscribeClient interface {
+	Recv() (*String, error)
+	grpc.ClientStream
+}
+
+type pubsubServiceSubscribeClient struct {
+	grpc.ClientStream
+}
+
+func (x *pubsubServiceSubscribeClient) Recv() (*String, error) {
+	m := new(String)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// PubsubServiceServer is the server API for PubsubService service.
+type PubsubServiceServer interface {
+	Publish(context.Context, *String) (*String, error)
+	Subscribe(*String, PubsubService_SubscribeServer) error
+}
+
+// UnimplementedPubsubServiceServer can be embedded to have forward compatible implementations.
+type UnimplementedPubsubServiceServer struct {
+}
+
+func (*UnimplementedPubsubServiceServer) Publish(context.Context, *String) (*String, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Publish not implemented")
+}
+func (*UnimplementedPubsubServiceServer) Subscribe(*String, PubsubService_SubscribeServer) error {
+	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
+}
+
+func RegisterPubsubServiceServer(s *grpc.Server, srv PubsubServiceServer) {
+	s.RegisterService(&_PubsubService_serviceDesc, srv)
+}
+
+func _PubsubService_Publish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(String)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PubsubServiceServer).Publish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/PubsubService/Publish",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PubsubServiceServer).Publish(ctx, req.(*String))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PubsubService_Subscribe_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(String)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PubsubServiceServer).Subscribe(m, &pubsubServiceSubscribeServer{stream})
+}
+
+type PubsubService_SubscribeServer interface {
+	Send(*String) error
+	grpc.ServerStream
+}
+
+type pubsubServiceSubscribeServer struct {
+	grpc.ServerStream
+}
+
+func (x *pubsubServiceSubscribeServer) Send(m *String) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+var _PubsubService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "PubsubService",
+	HandlerType: (*PubsubServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Publish",
+			Handler:    _PubsubService_Publish_Handler,
+		},
+	},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "Subscribe",
+			Handler:       _PubsubService_Subscribe_Handler,
+			ServerStreams: true,
 		},
 	},
 	Metadata: "hello.proto",

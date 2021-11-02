@@ -15,6 +15,7 @@ import (
 func TestGrpcServer(t *testing.T) {
 	grpcServer := grpc.NewServer()
 	RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
+	RegisterPubsubServiceServer(grpcServer, NewPubsubService())
 	listener, err := net.Listen("tcp", ":1234")
 	if err != nil {
 		log.Fatal("net listen error:", err)
@@ -52,6 +53,46 @@ func TestGrpcClient(t *testing.T) {
 				break
 			}
 			log.Fatal("recieve error:", err)
+		}
+		fmt.Println(reply.GetValue())
+	}
+}
+
+func TestPublishClient(t *testing.T) {
+	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	if err != nil {
+		log.Fatal("dial error:", err)
+	}
+	defer conn.Close()
+	client := NewPubsubServiceClient(conn)
+	_, err = client.Publish(context.Background(), &String{Value: "golang: hello go"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = client.Publish(context.Background(), &String{Value: "docker: hello docker"})
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func TestSubscribeClient(t *testing.T) {
+	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	if err != nil {
+		log.Fatal("dial error:", err)
+	}
+	defer conn.Close()
+	client := NewPubsubServiceClient(conn)
+	stream, err := client.Subscribe(context.Background(), &String{Value: "golang:"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for {
+		reply, err := stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Fatal(err)
 		}
 		fmt.Println(reply.GetValue())
 	}

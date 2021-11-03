@@ -13,7 +13,7 @@ import (
 )
 
 func TestGrpcServer(t *testing.T) {
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(filter))
 	RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
 	RegisterPubsubServiceServer(grpcServer, NewPubsubService())
 	listener, err := net.Listen("tcp", ":1234")
